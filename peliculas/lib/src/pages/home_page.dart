@@ -10,6 +10,9 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
+    peliculasProvider.getPopulares();
+
     return Scaffold(
         appBar: AppBar(
           title: Text('Películas en cines'),
@@ -50,26 +53,29 @@ class HomePage extends StatelessWidget {
     return Container(
       width: double.infinity,
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start ,
-        children: <Widget>[
-        Container(
-          padding: EdgeInsets.only(left: 20.0 ),
-          child: Text('Populares', style: Theme.of(context).textTheme.subtitle1)),
-        SizedBox(height: 5.0),
-        
-        FutureBuilder(
-          future: peliculasProvider.getPopulares(),
-          builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
-            if (snapshot.hasData) {
-              return MovieHorizontal(peliculas: snapshot.data);
-            } else {
-              return Center(child: CircularProgressIndicator());
-            }
-          },
-        ),
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+                padding: EdgeInsets.only(left: 20.0),
+                child: Text('Populares',
+                    style: Theme.of(context).textTheme.subtitle1)),
+            SizedBox(height: 5.0),
 
-        //Text('Populares', style: Theme.of(context).textTheme.headline6),
-      ]),
+            StreamBuilder(
+              stream: peliculasProvider.popularesStream,
+              builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+                if (snapshot.hasData) {
+                  return MovieHorizontal(
+                    peliculas: snapshot.data,
+                    siguientePagina: peliculasProvider.getPopulares,);
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
+              },
+            ),
+
+            //Text('Populares', style: Theme.of(context).textTheme.headline6),
+          ]),
     );
   }
 }
